@@ -89,4 +89,3 @@ document.getElementById("zoom-out").addEventListener("click", () => {
 });
 
 document.getElementById("reset-view").addEventListener("click", resetView);
-
