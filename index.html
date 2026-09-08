@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zoomable Image Viewer</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <main class="viewer-wrapper">
+        <h2>Minecraft World Map Viewer</h2>
+        <p>Scroll to zoom, drag to pan, or use the controls.</p>
+
+        <div id="map-container" aria-label="Zoomable image viewer">
+            <!-- Replace map.jpg with the name or path of your JPG image. -->
+            <img id="map-image" src="map.jpg" alt="Minecraft world map">
+            <div class="map-controls" aria-label="Zoom controls">
+                <button id="zoom-in" type="button" aria-label="Zoom in">+</button>
+                <button id="zoom-out" type="button" aria-label="Zoom out">−</button>
+                <button id="reset-view" type="button" aria-label="Reset view">⟳</button>
+            </div>
+        </div>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>
