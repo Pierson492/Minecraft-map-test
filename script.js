@@ -42,7 +42,7 @@ function resetView() {
 
 function zoomAt(factor, centerX, centerY) {
     const oldScale = scale;
-    scale = clamp(scale * factor, minScale, minScale * 8);
+    scale = clamp(scale * factor, minScale, minScale * 32);
     const ratio = scale / oldScale;
     x = centerX - (centerX - x) * ratio;
     y = centerY - (centerY - y) * ratio;
