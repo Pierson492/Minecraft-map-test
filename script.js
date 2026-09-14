@@ -6,6 +6,7 @@ let minScale = 1;
 let x = 0;
 let y = 0;
 let dragStart = null;
+let isKeyPressed = {};
 
 function clamp(value, min, max) {
     return Math.max(min, Math.min(value, max));
@@ -48,9 +49,50 @@ function zoomAt(factor, centerX, centerY) {
     render();
 }
 
+// Arrow key movement
+function handleArrowKeys() {
+    const moveSpeed = 30;
+    
+    if (isKeyPressed['ArrowUp']) {
+        y += moveSpeed;
+    }
+    if (isKeyPressed['ArrowDown']) {
+        y -= moveSpeed;
+    }
+    if (isKeyPressed['ArrowLeft']) {
+        x += moveSpeed;
+    }
+    if (isKeyPressed['ArrowRight']) {
+        x -= moveSpeed;
+    }
+    
+    if (isKeyPressed['ArrowUp'] || isKeyPressed['ArrowDown'] || 
+        isKeyPressed['ArrowLeft'] || isKeyPressed['ArrowRight']) {
+        render();
+    }
+}
+
 image.addEventListener("load", resetView);
 window.addEventListener("resize", resetView);
 
+// Keyboard events for arrow keys
+document.addEventListener("keydown", (e) => {
+    if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
+        e.preventDefault();
+        isKeyPressed[e.key] = true;
+    }
+});
+
+document.addEventListener("keyup", (e) => {
+    if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
+        isKeyPressed[e.key] = false;
+    }
+});
+
+// Continuous arrow key movement loop
+setInterval(handleArrowKeys, 16); // ~60 FPS
+
+// Scroll wheel zoom
 container.addEventListener("wheel", (event) => {
     event.preventDefault();
     const bounds = container.getBoundingClientRect();
@@ -58,6 +100,7 @@ container.addEventListener("wheel", (event) => {
     zoomAt(factor, event.clientX - bounds.left, event.clientY - bounds.top);
 }, { passive: false });
 
+// Trackpad drag (pointer events)
 container.addEventListener("pointerdown", (event) => {
     if (event.target.closest("button")) return;
     container.setPointerCapture(event.pointerId);
@@ -80,6 +123,7 @@ function stopDragging() {
 container.addEventListener("pointerup", stopDragging);
 container.addEventListener("pointercancel", stopDragging);
 
+// Button controls
 document.getElementById("zoom-in").addEventListener("click", () => {
     zoomAt(1.25, container.clientWidth / 2, container.clientHeight / 2);
 });
