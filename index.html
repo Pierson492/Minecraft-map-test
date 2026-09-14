@@ -3,27 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Projects</title>
+    <title>Minecraft World Map Viewer</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <main class="viewer-wrapper">
-        <h2>My Projects</h2>
-        <p>Welcome! Choose a project to explore.</p>
-        
-        <div class="projects-grid">
-            <a href="map.html" class="project-card">
-                <div class="project-icon">🗺️</div>
-                <h3>Minecraft Map Viewer</h3>
-                <p>Interactive zoomable Minecraft world map</p>
-            </a>
-            
-            <a href="todo.html" class="project-card">
-                <div class="project-icon">✓</div>
-                <h3>To-Do List</h3>
-                <p>Task management with local storage</p>
-            </a>
+        <h2>Minecraft World Map Viewer</h2>
+        <p>Scroll to zoom, drag to pan, use arrow keys to move, or use the controls.</p>
+
+        <div id="map-container" aria-label="Zoomable image viewer">
+            <img id="map-image" src="images/map.jpg" alt="Minecraft world map">
+            <div class="map-controls" aria-label="Zoom controls">
+                <button id="zoom-in" type="button" aria-label="Zoom in">+</button>
+                <button id="zoom-out" type="button" aria-label="Zoom out">−</button>
+                <button id="reset-view" type="button" aria-label="Reset view">⟳</button>
+            </div>
         </div>
     </main>
+
+    <script src="script.js"></script>
 </body>
 </html>
