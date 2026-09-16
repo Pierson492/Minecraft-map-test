@@ -11,10 +11,15 @@ let y = 0;
 let dragStart = null;
 let isKeyPressed = {};
 let isNight = false;
+let zoomFrame = null;
+let pendingWheelDelta = 0;
+let pendingZoomPoint = null;
 
 const MAX_SCALE = 32;
 const BUTTON_ZOOM_FACTOR = 1.08;
-const WHEEL_ZOOM_SENSITIVITY = 0.002;
+// Trackpads emit many small wheel events. A small exponential step keeps the
+// response proportional while RAF batching prevents event/render jitter.
+const WHEEL_ZOOM_SENSITIVITY = 0.0012;
 
 function clamp(value, min, max) {
     return Math.max(min, Math.min(value, max));
@@ -25,16 +30,16 @@ function limitPosition() {
     const height = container.clientHeight;
     const imageWidth = image.naturalWidth * scale;
     const imageHeight = image.naturalHeight * scale;
-
     const minX = Math.min(0, width - imageWidth);
     const minY = Math.min(0, height - imageHeight);
+
     x = clamp(x, minX, Math.max(0, width - imageWidth));
     y = clamp(y, minY, Math.max(0, height - imageHeight));
 }
 
 function render() {
     limitPosition();
-    const transform = `translate(${x}px, ${y}px) scale(${scale})`;
+    const transform = `translate3d(${x}px, ${y}px, 0) scale(${scale})`;
     mapImages.forEach((mapImage) => {
         mapImage.style.transform = transform;
     });
@@ -57,13 +62,37 @@ function zoomAt(factor, centerX, centerY) {
     const newScale = clamp(scale * factor, minScale, Math.max(minScale, MAX_SCALE));
     if (newScale === oldScale) return;
 
-    // Apply the zoom immediately around the pointer. Using the current transform
-    // (instead of a queued target transform) prevents trackpad events from darting.
     const ratio = newScale / oldScale;
     x = centerX - (centerX - x) * ratio;
     y = centerY - (centerY - y) * ratio;
     scale = newScale;
     render();
+}
+
+function applyPendingWheelZoom() {
+    zoomFrame = null;
+    if (!pendingWheelDelta || !pendingZoomPoint) return;
+
+    const delta = pendingWheelDelta;
+    const point = pendingZoomPoint;
+    pendingWheelDelta = 0;
+    pendingZoomPoint = null;
+    zoomAt(Math.exp(-delta * WHEEL_ZOOM_SENSITIVITY), point.x, point.y);
+}
+
+function handleWheel(event) {
+    event.preventDefault();
+    const bounds = container.getBoundingClientRect();
+    const rawDelta = event.deltaMode === 1 ? event.deltaY * 16 : event.deltaY;
+
+    // Coalesce high-frequency trackpad events and use the latest pointer point.
+    pendingWheelDelta = clamp(pendingWheelDelta + rawDelta, -240, 240);
+    pendingZoomPoint = {
+        x: event.clientX - bounds.left,
+        y: event.clientY - bounds.top
+    };
+
+    if (zoomFrame === null) zoomFrame = requestAnimationFrame(applyPendingWheelZoom);
 }
 
 function handleArrowKeys() {
@@ -87,21 +116,12 @@ function setMapMode(night) {
 
 image.addEventListener("load", resetView);
 window.addEventListener("resize", resetView);
-
-// A missing night image should not hide the working day map. Add images/map-night.jpg
-// whenever a night render is available; the toggle will start working automatically.
 nightImage.addEventListener("error", () => {
     nightImage.style.display = "none";
     modeToggle.title = "Add images/map-night.jpg to enable the night map";
 });
 
-container.addEventListener("wheel", (event) => {
-    event.preventDefault();
-    const bounds = container.getBoundingClientRect();
-    const delta = event.deltaMode === 1 ? event.deltaY * 16 : event.deltaY;
-    const factor = Math.exp(-delta * WHEEL_ZOOM_SENSITIVITY);
-    zoomAt(factor, event.clientX - bounds.left, event.clientY - bounds.top);
-}, { passive: false });
+container.addEventListener("wheel", handleWheel, { passive: false });
 
 container.addEventListener("pointerdown", (event) => {
     if (event.target.closest("button")) return;
