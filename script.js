@@ -3,8 +3,12 @@ const image = document.getElementById("map-image");
 
 let scale = 1;
 let minScale = 1;
+let targetScale = 1;
 let x = 0;
 let y = 0;
+let targetX = 0;
+let targetY = 0;
+let zoomAnimationFrame = null;
 let dragStart = null;
 let isKeyPressed = {};
 
@@ -13,6 +17,7 @@ let isKeyPressed = {};
 const MAX_SCALE = 32;
 const BUTTON_ZOOM_FACTOR = 1.08;
 const WHEEL_ZOOM_SENSITIVITY = 0.0008;
+const ZOOM_SMOOTHING = 0.18;
 
 function clamp(value, min, max) {
     return Math.max(min, Math.min(value, max));
@@ -41,18 +46,48 @@ function resetView() {
     const height = container.clientHeight;
     minScale = Math.min(width / image.naturalWidth, height / image.naturalHeight);
     scale = minScale;
+    targetScale = scale;
     x = (width - image.naturalWidth * scale) / 2;
     y = (height - image.naturalHeight * scale) / 2;
+    targetX = x;
+    targetY = y;
     render();
 }
 
-function zoomAt(factor, centerX, centerY) {
-    const oldScale = scale;
-    scale = clamp(scale * factor, minScale, Math.max(minScale, MAX_SCALE));
-    const ratio = scale / oldScale;
-    x = centerX - (centerX - x) * ratio;
-    y = centerY - (centerY - y) * ratio;
+function animateZoom() {
+    scale += (targetScale - scale) * ZOOM_SMOOTHING;
+    x += (targetX - x) * ZOOM_SMOOTHING;
+    y += (targetY - y) * ZOOM_SMOOTHING;
     render();
+
+    const scaleIsSettled = Math.abs(targetScale - scale) < 0.0001;
+    const xIsSettled = Math.abs(targetX - x) < 0.05;
+    const yIsSettled = Math.abs(targetY - y) < 0.05;
+
+    if (scaleIsSettled && xIsSettled && yIsSettled) {
+        scale = targetScale;
+        x = targetX;
+        y = targetY;
+        zoomAnimationFrame = null;
+        render();
+        return;
+    }
+
+    zoomAnimationFrame = requestAnimationFrame(animateZoom);
+}
+
+function zoomAt(factor, centerX, centerY) {
+    // Update the destination rather than jumping the image immediately. This
+    // makes high-frequency trackpad wheel events blend into one smooth motion.
+    const oldTargetScale = targetScale;
+    targetScale = clamp(targetScale * factor, minScale, Math.max(minScale, MAX_SCALE));
+    const ratio = targetScale / oldTargetScale;
+    targetX = centerX - (centerX - targetX) * ratio;
+    targetY = centerY - (centerY - targetY) * ratio;
+
+    if (zoomAnimationFrame === null) {
+        zoomAnimationFrame = requestAnimationFrame(animateZoom);
+    }
 }
 
 // Arrow key movement
@@ -61,15 +96,19 @@ function handleArrowKeys() {
     
     if (isKeyPressed['ArrowUp']) {
         y += moveSpeed;
+        targetY = y;
     }
     if (isKeyPressed['ArrowDown']) {
         y -= moveSpeed;
+        targetY = y;
     }
     if (isKeyPressed['ArrowLeft']) {
         x += moveSpeed;
+        targetX = x;
     }
     if (isKeyPressed['ArrowRight']) {
         x -= moveSpeed;
+        targetX = x;
     }
     
     if (isKeyPressed['ArrowUp'] || isKeyPressed['ArrowDown'] || 
@@ -98,8 +137,8 @@ document.addEventListener("keyup", (e) => {
 // Continuous arrow key movement loop
 setInterval(handleArrowKeys, 16); // ~60 FPS
 
-// Scroll wheel zoom. Scale the step by deltaY so each wheel notch is a
-// smaller, consistent change while trackpads remain smooth.
+// Scroll wheel zoom. Trackpads send many small wheel events, so accumulate
+// those events into a moving target and animate toward it with requestAnimationFrame.
 container.addEventListener("wheel", (event) => {
     event.preventDefault();
     const bounds = container.getBoundingClientRect();
@@ -119,6 +158,8 @@ container.addEventListener("pointermove", (event) => {
     if (!dragStart) return;
     x = dragStart.x + event.clientX - dragStart.pointerX;
     y = dragStart.y + event.clientY - dragStart.pointerY;
+    targetX = x;
+    targetY = y;
     render();
 });
 
