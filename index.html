@@ -7,19 +7,71 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <main class="viewer-wrapper">
-        <h2>IsraelCraft World Map Viewer</h2>
-        <p>Scroll to zoom, drag to pan, use arrow keys to move, or use the controls.</p>
-
-        <div id="map-container" aria-label="Zoomable image viewer">
-            <img id="map-image" src="images/map.jpg" alt="IsraelCraft world map">
-            <div class="map-controls" aria-label="Zoom controls">
-                <button id="zoom-in" type="button" aria-label="Zoom in">+</button>
-                <button id="zoom-out" type="button" aria-label="Zoom out">−</button>
-                <button id="reset-view" type="button" aria-label="Reset view">⟳</button>
-            </div>
+    <div class="topbar">
+        <div class="site-width">
+            <span><i class="status-dot"></i> ISRAELCRAFT NETWORK // WHITELIST ACTIVE</span>
+            <span>JAVA + BEDROCK • VANILLA SURVIVAL</span>
         </div>
+    </div>
+
+    <header class="site-header">
+        <nav class="site-width navigation" aria-label="Main navigation">
+            <a class="brand" href="index.html">
+                <span class="brand-mark">IC</span>
+                <span><strong>ISRAELCRAFT</strong><small>community civilization portal</small></span>
+            </a>
+            <div class="nav-links">
+                <a href="#map">Map</a>
+                <a href="#about">About</a>
+                <a href="https://discord.gg/fUkshKDKEz" target="_blank" rel="noopener">Discord ↗</a>
+            </div>
+        </nav>
+    </header>
+
+    <main class="site-width page-content" id="map">
+        <section class="intro">
+            <div class="eyebrow">World archive</div>
+            <h1>IsraelCraft<br><span>world map viewer.</span></h1>
+            <p>Explore the server map, inspect the details, and find your way around the civilization.</p>
+        </section>
+
+        <section class="map-card" aria-labelledby="map-title">
+            <div class="map-card-header">
+                <div>
+                    <div class="eyebrow light">IsraelCraft cartography division</div>
+                    <h2 id="map-title">Server map overview</h2>
+                </div>
+                <div class="map-controls" aria-label="Zoom controls">
+                    <button id="zoom-in" type="button" aria-label="Zoom in">+</button>
+                    <button id="zoom-out" type="button" aria-label="Zoom out">−</button>
+                    <button id="reset-view" type="button" aria-label="Reset view">⟳</button>
+                </div>
+            </div>
+
+            <div id="map-container" aria-label="Zoomable IsraelCraft world map">
+                <img id="map-image" src="images/map.jpg" alt="IsraelCraft world map">
+            </div>
+            <p class="map-help">Scroll to zoom • drag to pan • use the controls to reset</p>
+        </section>
+
+        <section class="info-grid" id="about">
+            <article class="info-card">
+                <div class="eyebrow">Field notes</div>
+                <h2>A small server.<br>An unreasonable amount of lore.</h2>
+                <p>IsraelCraft has bases, roads, automated farms, a Nether highway, sporting institutions, political controversy, and exactly four people keeping all of it alive.</p>
+            </article>
+            <article class="info-card dark-card">
+                <div class="eyebrow light">Navigation log</div>
+                <p class="terminal-text">MAP STATUS: ONLINE<br>WHITELIST: ACTIVE<br>LEIF INVENTORY: QUESTIONABLE<br>MAX CRIMINAL ALLEGATIONS: ALLEGEDLY</p>
+            </article>
+        </section>
     </main>
+
+    <footer class="site-width footer">
+        <strong>ISRAELCRAFT</strong>
+        <span>IsraelCraftMPG.exaroton.me</span>
+        <span>OFFICIAL-ISH • Not affiliated with Mojang or Microsoft.</span>
+    </footer>
 
     <script src="script.js"></script>
 </body>

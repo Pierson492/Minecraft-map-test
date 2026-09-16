@@ -12,8 +12,6 @@ let zoomAnimationFrame = null;
 let dragStart = null;
 let isKeyPressed = {};
 
-// Keep the zoom steps gentle and allow enough magnification to inspect
-// individual source-image pixels (up to 32 screen pixels per image pixel).
 const MAX_SCALE = 32;
 const BUTTON_ZOOM_FACTOR = 1.08;
 // Slightly faster trackpad zoom while keeping the motion smooth.
@@ -30,7 +28,6 @@ function limitPosition() {
     const imageWidth = image.naturalWidth * scale;
     const imageHeight = image.naturalHeight * scale;
 
-    // Keep at least part of the image visible while panning.
     const minX = Math.min(0, width - imageWidth);
     const minY = Math.min(0, height - imageHeight);
     x = clamp(x, minX, Math.max(0, width - imageWidth));
@@ -78,8 +75,6 @@ function animateZoom() {
 }
 
 function zoomAt(factor, centerX, centerY) {
-    // Update the destination rather than jumping the image immediately. This
-    // makes high-frequency trackpad wheel events blend into one smooth motion.
     const oldTargetScale = targetScale;
     targetScale = clamp(targetScale * factor, minScale, Math.max(minScale, MAX_SCALE));
     const ratio = targetScale / oldTargetScale;
@@ -91,29 +86,27 @@ function zoomAt(factor, centerX, centerY) {
     }
 }
 
-// Arrow key movement
 function handleArrowKeys() {
     const moveSpeed = 30;
-    
-    if (isKeyPressed['ArrowUp']) {
+
+    if (isKeyPressed.ArrowUp) {
         y += moveSpeed;
         targetY = y;
     }
-    if (isKeyPressed['ArrowDown']) {
+    if (isKeyPressed.ArrowDown) {
         y -= moveSpeed;
         targetY = y;
     }
-    if (isKeyPressed['ArrowLeft']) {
+    if (isKeyPressed.ArrowLeft) {
         x += moveSpeed;
         targetX = x;
     }
-    if (isKeyPressed['ArrowRight']) {
+    if (isKeyPressed.ArrowRight) {
         x -= moveSpeed;
-        targetX = y;
+        targetX = x;
     }
-    
-    if (isKeyPressed['ArrowUp'] || isKeyPressed['ArrowDown'] || 
-        isKeyPressed['ArrowLeft'] || isKeyPressed['ArrowRight']) {
+
+    if (Object.values(isKeyPressed).some(Boolean)) {
         render();
     }
 }
@@ -121,25 +114,21 @@ function handleArrowKeys() {
 image.addEventListener("load", resetView);
 window.addEventListener("resize", resetView);
 
-// Keyboard events for arrow keys
-document.addEventListener("keydown", (e) => {
-    if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
-        e.preventDefault();
-        isKeyPressed[e.key] = true;
+document.addEventListener("keydown", (event) => {
+    if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(event.key)) {
+        event.preventDefault();
+        isKeyPressed[event.key] = true;
     }
 });
 
-document.addEventListener("keyup", (e) => {
-    if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
-        isKeyPressed[e.key] = false;
+document.addEventListener("keyup", (event) => {
+    if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(event.key)) {
+        isKeyPressed[event.key] = false;
     }
 });
 
-// Continuous arrow key movement loop
-setInterval(handleArrowKeys, 16); // ~60 FPS
+setInterval(handleArrowKeys, 16);
 
-// Scroll wheel zoom. Trackpads send many small wheel events, so accumulate
-// those events into a moving target and animate toward it with requestAnimationFrame.
 container.addEventListener("wheel", (event) => {
     event.preventDefault();
     const bounds = container.getBoundingClientRect();
@@ -147,7 +136,6 @@ container.addEventListener("wheel", (event) => {
     zoomAt(factor, event.clientX - bounds.left, event.clientY - bounds.top);
 }, { passive: false });
 
-// Trackpad drag (pointer events)
 container.addEventListener("pointerdown", (event) => {
     if (event.target.closest("button")) return;
     container.setPointerCapture(event.pointerId);
@@ -172,7 +160,6 @@ function stopDragging() {
 container.addEventListener("pointerup", stopDragging);
 container.addEventListener("pointercancel", stopDragging);
 
-// Button controls
 document.getElementById("zoom-in").addEventListener("click", () => {
     zoomAt(BUTTON_ZOOM_FACTOR, container.clientWidth / 2, container.clientHeight / 2);
 });
