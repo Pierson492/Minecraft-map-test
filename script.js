@@ -8,6 +8,12 @@ let y = 0;
 let dragStart = null;
 let isKeyPressed = {};
 
+// Keep the zoom steps gentle and allow enough magnification to inspect
+// individual source-image pixels (up to 32 screen pixels per image pixel).
+const MAX_SCALE = 32;
+const BUTTON_ZOOM_FACTOR = 1.08;
+const WHEEL_ZOOM_SENSITIVITY = 0.0008;
+
 function clamp(value, min, max) {
     return Math.max(min, Math.min(value, max));
 }
@@ -42,7 +48,7 @@ function resetView() {
 
 function zoomAt(factor, centerX, centerY) {
     const oldScale = scale;
-    scale = clamp(scale * factor, minScale, minScale * 32);
+    scale = clamp(scale * factor, minScale, Math.max(minScale, MAX_SCALE));
     const ratio = scale / oldScale;
     x = centerX - (centerX - x) * ratio;
     y = centerY - (centerY - y) * ratio;
@@ -92,11 +98,12 @@ document.addEventListener("keyup", (e) => {
 // Continuous arrow key movement loop
 setInterval(handleArrowKeys, 16); // ~60 FPS
 
-// Scroll wheel zoom
+// Scroll wheel zoom. Scale the step by deltaY so each wheel notch is a
+// smaller, consistent change while trackpads remain smooth.
 container.addEventListener("wheel", (event) => {
     event.preventDefault();
     const bounds = container.getBoundingClientRect();
-    const factor = event.deltaY < 0 ? 1.15 : 1 / 1.15;
+    const factor = Math.pow(1 + WHEEL_ZOOM_SENSITIVITY, -event.deltaY);
     zoomAt(factor, event.clientX - bounds.left, event.clientY - bounds.top);
 }, { passive: false });
 
@@ -125,11 +132,11 @@ container.addEventListener("pointercancel", stopDragging);
 
 // Button controls
 document.getElementById("zoom-in").addEventListener("click", () => {
-    zoomAt(1.25, container.clientWidth / 2, container.clientHeight / 2);
+    zoomAt(BUTTON_ZOOM_FACTOR, container.clientWidth / 2, container.clientHeight / 2);
 });
 
 document.getElementById("zoom-out").addEventListener("click", () => {
-    zoomAt(1 / 1.25, container.clientWidth / 2, container.clientHeight / 2);
+    zoomAt(1 / BUTTON_ZOOM_FACTOR, container.clientWidth / 2, container.clientHeight / 2);
 });
 
 document.getElementById("reset-view").addEventListener("click", resetView);
