@@ -41,17 +41,19 @@
                     <div class="eyebrow light">IsraelCraft cartography division</div>
                     <h2 id="map-title">Server map overview</h2>
                 </div>
-                <div class="map-controls" aria-label="Zoom controls">
+                <div class="map-controls" aria-label="Map controls">
                     <button id="zoom-in" type="button" aria-label="Zoom in">+</button>
                     <button id="zoom-out" type="button" aria-label="Zoom out">−</button>
                     <button id="reset-view" type="button" aria-label="Reset view">⟳</button>
+                    <button id="mode-toggle" class="mode-toggle" type="button" aria-pressed="false" aria-label="Switch to night map">☾ <span>Night</span></button>
                 </div>
             </div>
 
             <div id="map-container" aria-label="Zoomable IsraelCraft world map">
-                <img id="map-image" src="images/map.jpg" alt="IsraelCraft world map">
+                <img id="map-image" class="map-image" src="images/map.jpg" alt="IsraelCraft world map, daytime">
+                <img id="map-image-night" class="map-image map-image-night" src="images/map-night.jpg" alt="IsraelCraft world map, nighttime" aria-hidden="true">
             </div>
-            <p class="map-help">Scroll to zoom • drag to pan • use the controls to reset</p>
+            <p class="map-help">Scroll to zoom • drag to pan • use the controls to reset • switch between day and night maps</p>
         </section>
 
         <section class="info-grid" id="about">
