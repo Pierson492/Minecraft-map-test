@@ -16,7 +16,7 @@ let pendingWheelDelta = 0;
 let pendingZoomPoint = null;
 
 const MAX_SCALE = 32;
-const BUTTON_ZOOM_FACTOR = 1.08;
+const BUTTON_ZOOM_FACTOR = 1.2;
 // Trackpads emit many small wheel events. A small exponential step keeps the
 // response proportional while RAF batching prevents event/render jitter.
 const WHEEL_ZOOM_SENSITIVITY = 0.0012;
