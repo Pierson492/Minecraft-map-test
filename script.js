@@ -16,7 +16,8 @@ let isKeyPressed = {};
 // individual source-image pixels (up to 32 screen pixels per image pixel).
 const MAX_SCALE = 32;
 const BUTTON_ZOOM_FACTOR = 1.08;
-const WHEEL_ZOOM_SENSITIVITY = 0.0008;
+// Slightly faster trackpad zoom while keeping the motion smooth.
+const WHEEL_ZOOM_SENSITIVITY = 0.001;
 const ZOOM_SMOOTHING = 0.18;
 
 function clamp(value, min, max) {
@@ -108,7 +109,7 @@ function handleArrowKeys() {
     }
     if (isKeyPressed['ArrowRight']) {
         x -= moveSpeed;
-        targetX = x;
+        targetX = y;
     }
     
     if (isKeyPressed['ArrowUp'] || isKeyPressed['ArrowDown'] || 
