@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>IsraelCraft World Map Viewer</title>
     <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="waypoints.css">
 </head>
 <body>
     <div class="topbar">
@@ -45,15 +46,17 @@
                     <button id="zoom-in" type="button" aria-label="Zoom in">+</button>
                     <button id="zoom-out" type="button" aria-label="Zoom out">−</button>
                     <button id="reset-view" type="button" aria-label="Reset view">⟳</button>
+                    <button id="waypoint-toggle" type="button" aria-pressed="false" aria-label="Place waypoint" title="Place waypoint">⚑</button>
                     <button id="mode-toggle" class="mode-toggle" type="button" aria-pressed="false" aria-label="Switch to night map">☾ <span>Night</span></button>
                 </div>
             </div>
 
-            <div id="map-container" aria-label="Zoomable IsraelCraft world map">
+            <div id="map-container" tabindex="0" aria-label="Zoomable IsraelCraft world map">
                 <img id="map-image" class="map-image" src="images/map.jpg" alt="IsraelCraft world map, daytime">
                 <img id="map-image-night" class="map-image map-image-night" src="images/map-night.jpg" alt="IsraelCraft world map, nighttime" aria-hidden="true">
+                <div id="waypoint-layer" class="waypoint-layer"></div>
             </div>
-            <p class="map-help">Scroll to zoom • drag to pan • use the controls to reset • switch between day and night maps</p>
+            <p class="map-help">Scroll or pinch to zoom • drag to pan • arrow keys to move • ⚑ to drop a waypoint • day/night toggle</p>
         </section>
 
         <section class="info-grid" id="about">
