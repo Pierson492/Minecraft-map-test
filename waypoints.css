@@ -1,0 +1,29 @@
+/* Map viewer additions: keyboard focus, waypoint pins, disabled night toggle.
+   Loaded after styles.css. */
+
+#map-container { isolation: isolate; } /* keeps pins below the sticky site header */
+#map-container:focus-visible { outline: 3px solid #b8d0ee; outline-offset: 3px; }
+#map-container.is-placing { cursor: crosshair; }
+
+.map-controls button:disabled { opacity: .4; cursor: not-allowed; transform: none; background: var(--blue); border-color: #e8dcc2; }
+.map-controls #waypoint-toggle[aria-pressed="true"] { background: var(--red); border-color: #fff; }
+
+/* The layer shares the map image's transform, so pin positions are in map-pixel coordinates. */
+.waypoint-layer { position: absolute; top: 0; left: 0; width: 0; height: 0; z-index: 5; transform-origin: 0 0; pointer-events: none; }
+
+/* Each waypoint is a zero-size anchor at the map point, scaled by 1/zoom so pins keep a constant on-screen size. */
+.waypoint { position: absolute; width: 0; height: 0; transform: scale(var(--inverse-scale, 1)); transform-origin: 0 0; }
+
+.waypoint-pin {
+    position: absolute; left: -17px; top: -41px; width: 34px; height: 34px; padding: 0;
+    display: grid; place-items: center;
+    border: 3px solid #fff; border-radius: 50% 50% 50% 0;
+    background: var(--pin-color, var(--blue)); color: #fff;
+    box-shadow: 2px 2px 0 #111;
+    font: 900 14px var(--pixel);
+    cursor: pointer; pointer-events: auto;
+    transform: rotate(-45deg);
+    transition: filter .15s ease;
+}
+.waypoint-pin span { transform: rotate(45deg); text-shadow: 1px 1px 0 #111; }
+.waypoint-pin:hover, .waypoint-pin:focus-visible { filter: brightness(1.18); outline: 2px solid #fff; }
